@@ -12,15 +12,21 @@ const canvas = document.querySelector('canvas.webgl')
 const gui = new dat.GUI()
 const loadingManager = new THREE.LoadingManager()
 const textureLoader = new THREE.TextureLoader(loadingManager)
-
+// wall tectures
 const colorTexture = textureLoader.load('/textures/brick/Wood_Shingles_001_basecolor.jpg')
 const bricksAmbientOcclusionTexture=textureLoader.load('/textures/brick/Wood_Shingles_001_ambientOcclusion.jpg')
 const bricksNormalTexture=textureLoader.load('/textures/brick/Wood_Shingles_001_normal.jpg')
-const bricksRoughnessTexture=textureLoader.load('/textures/brick/Wood_Shingles.jpg')
+const bricksRoughnessTexture=textureLoader.load('/textures/brick/Wood_Shingles_001_roughness.jpg')
+const bricksDisplacementTexture=textureLoader.load('/textures/brick/Wood_Shingles_001_height.png')
 colorTexture.minFilter = THREE.NearestFilter
 colorTexture.magFilter = THREE.NearestFilter
-// colorTexture.repeat.x = 2
-// colorTexture.repeat.y = 3
+
+// floor textures
+const floorColorTexture = textureLoader.load('/textures/Floor/Rocks_Hexagons_001_basecolor.jpg')
+const floorAmbientOcclusionTexture=textureLoader.load('/textures/Floor/Rocks_Hexagons_001_ambientOcclusion.jpg')
+const floorNormalTexture=textureLoader.load('/textures/Floor/Rocks_Hexagons_001_normal.jpg')
+const floorRoughnessTexture=textureLoader.load('/textures/Floor/Rocks_Hexagons_001_roughness.jpg')
+const floorDisplacementTexture=textureLoader.load('/textures/Floor/Rocks_Hexagons_001_height.png')
 
 
 
@@ -31,22 +37,42 @@ const scene = new THREE.Scene()
  * Room 1
  */
 // material
+// material.normalScale.set(0.5, 0.5)
+
 const material = new THREE.MeshBasicMaterial( {
     map:colorTexture,
     aoMap:bricksAmbientOcclusionTexture,
     normalMap:bricksNormalTexture,
     roughnessMap:bricksRoughnessTexture,
+    displacementMap:bricksDisplacementTexture,
      side: THREE.DoubleSide
 } );
+
 const materialFloor = new THREE.MeshBasicMaterial( {
-    // map:colorTexture,
-    // aoMap:bricksAmbientOcclusionTexture,
-    // normalMap:bricksNormalTexture,
-    // roughnessMap:bricksRoughnessTexture,
+    map:floorColorTexture,
+    aoMap:floorAmbientOcclusionTexture,
+    normalMap:floorNormalTexture,
+    roughnessMap:floorRoughnessTexture,
+    displacementMap:floorDisplacementTexture,
      side: THREE.DoubleSide
 } );
+
+material.aoMapIntensity = 1
+material.displacementScale=1
+
+gui.add(material,'displacementScale').min(0).max(3).step(.1)
+gui.add(material,'aoMapIntensity').min(0).max(3).step(.1)
+// material.flatShading = true
+// materialFloor.flatShading=true
+material.roughness = 0.65
+materialFloor.roughness=1
+
+gui.add(material,'roughness').min(0).max(13).step(.1)
+gui.add(materialFloor,'roughness').min(0).max(13).step(.1)
+
 // geometry
 const geometry = new THREE.BoxGeometry( 1, 1,.1 );
+geometry.setAttribute('uv2', new THREE.BufferAttribute(geometry.attributes.uv.array, 2))
 // gui.add(geometry,'width').min('0').max('3').step('.01')
 
 // group creation
