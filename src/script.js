@@ -28,7 +28,12 @@ const floorNormalTexture=textureLoader.load('/textures/Floor/Rocks_Hexagons_001_
 const floorRoughnessTexture=textureLoader.load('/textures/Floor/Rocks_Hexagons_001_roughness.jpg')
 const floorDisplacementTexture=textureLoader.load('/textures/Floor/Rocks_Hexagons_001_height.png')
 
-
+// crazy
+const crazyColorTexture = textureLoader.load('/textures/crazy/Abstract_010_basecolor.jpg')
+const crazyAmbientOcclusionTexture=textureLoader.load('/textures/crazy/Abstract_010_ambientOcclusion.jpg')
+const crazyNormalTexture=textureLoader.load('/textures/crazy/Abstract_010_normal.jpg')
+const crazyRoughnessTexture=textureLoader.load('/textures/crazy/Abstract_010_roughness.jpg')
+const crazyDisplacementTexture=textureLoader.load('/textures/crazy/Abstract_010_height.png')
 
 // Scene
 const scene = new THREE.Scene()
@@ -39,40 +44,73 @@ const scene = new THREE.Scene()
 // material
 // material.normalScale.set(0.5, 0.5)
 
-const material = new THREE.MeshBasicMaterial( {
-    map:colorTexture,
-    aoMap:bricksAmbientOcclusionTexture,
-    normalMap:bricksNormalTexture,
-    roughnessMap:bricksRoughnessTexture,
-    displacementMap:bricksDisplacementTexture,
-     side: THREE.DoubleSide
-} );
-
-const materialFloor = new THREE.MeshBasicMaterial( {
-    map:floorColorTexture,
-    aoMap:floorAmbientOcclusionTexture,
-    normalMap:floorNormalTexture,
-    roughnessMap:floorRoughnessTexture,
-    displacementMap:floorDisplacementTexture,
-     side: THREE.DoubleSide
-} );
-
+// const material = new THREE.MeshBasicMaterial( {
+//     map:colorTexture,
+//     aoMap:bricksAmbientOcclusionTexture,
+//     normalMap:bricksNormalTexture,
+//     roughnessMap:bricksRoughnessTexture,
+//     displacementMap:bricksDisplacementTexture,
+//      side: THREE.DoubleSide
+// } );
+const material = new THREE.MeshPhysicalMaterial()
+// material.metalness = 0
+// material.roughness = 1
+// gui.add(material, 'metalness').min(0).max(1).step(0.0001)
+gui.add(material, 'roughness').min(0).max(1).step(0.0001)
+material.map = crazyColorTexture
+material.aoMap = crazyAmbientOcclusionTexture
 material.aoMapIntensity = 1
-material.displacementScale=1
+material.displacementMap = crazyDisplacementTexture
+material.displacementScale = 0.05
+// material.metalnessMap = doorMetalnessTexture
+material.roughnessMap = crazyRoughnessTexture
+material.normalMap = crazyNormalTexture
+material.normalScale.set(0.5, 0.5)
+material.transparent = true
+// material.alphaMap = doorAlphaTexture
+material.clearcoat = 1
+material.clearcoatRoughness = 0
 
-gui.add(material,'displacementScale').min(0).max(3).step(.1)
-gui.add(material,'aoMapIntensity').min(0).max(3).step(.1)
+
+const materialFloor = new THREE.MeshPhysicalMaterial()
+
+// const materialFloor = new THREE.MeshBasicMaterial( {
+//     map:floorColorTexture,
+//     aoMap:floorAmbientOcclusionTexture,
+//     normalMap:floorNormalTexture,
+//     roughnessMap:floorRoughnessTexture,
+//     displacementMap:floorDisplacementTexture,
+//      side: THREE.DoubleSide
+// } );
+gui.add(materialFloor, 'roughness').min(0).max(1).step(0.0001)
+materialFloor.map = floorColorTexture
+materialFloor.aoMap = floorAmbientOcclusionTexture
+materialFloor.aoMapIntensity = 1
+materialFloor.displacementMap = floorDisplacementTexture
+materialFloor.displacementScale = 0.05
+// material.metalnessMap = doorMetalnessTexture
+materialFloor.roughnessMap = floorRoughnessTexture
+materialFloor.normalMap = floorNormalTexture
+materialFloor.normalScale.set(0.5, 0.5)
+materialFloor.transparent = true
+// material.alphaMap = doorAlphaTexture
+materialFloor.clearcoat = 1
+materialFloor.clearcoatRoughness = 0
+// material.aoMapIntensity = 1
+// material.displacementScale=1
+
+gui.add(materialFloor,'displacementScale').min(0).max(3).step(.1)
+gui.add(materialFloor,'aoMapIntensity').min(0).max(3).step(.1)
 // material.flatShading = true
 // materialFloor.flatShading=true
-material.roughness = 0.65
-materialFloor.roughness=1
+// material.roughness = 0.65
+// materialFloor.roughness=1
 
-gui.add(material,'roughness').min(0).max(13).step(.1)
+gui.add(materialFloor,'roughness').min(0).max(13).step(.1)
 gui.add(materialFloor,'roughness').min(0).max(13).step(.1)
 
 // geometry
-const geometry = new THREE.BoxGeometry( 1, 1,.1 );
-geometry.setAttribute('uv2', new THREE.BufferAttribute(geometry.attributes.uv.array, 2))
+const geometry = new THREE.BoxGeometry( 1, 1,.1,50,50 );
 // gui.add(geometry,'width').min('0').max('3').step('.01')
 
 // group creation
@@ -80,9 +118,13 @@ const roomOne=new THREE.Group()
 scene.add(roomOne)
 // mesh creations
 const backWall=new THREE.Mesh(geometry,material)
+backWall.geometry.setAttribute('uv2', new THREE.BufferAttribute(backWall.geometry.attributes.uv.array, 2))
+
 roomOne.add(backWall)
 
 const floor=new THREE.Mesh(geometry,materialFloor)
+floor.geometry.setAttribute('uv2', new THREE.BufferAttribute(floor.geometry.attributes.uv.array, 2))
+
 floor.rotation.x=1.57
 floor.position.y=-.506
 floor.position.z=.477
@@ -93,6 +135,8 @@ floor.position.z=.477
 roomOne.add(floor)
 
 const leftWall=new THREE.Mesh(geometry,material)
+leftWall.geometry.setAttribute('uv2', new THREE.BufferAttribute(leftWall.geometry.attributes.uv.array, 2))
+
 leftWall.rotation.y=1.57
 leftWall.position.x=-0.5064
 leftWall.position.z=0.477
@@ -102,6 +146,8 @@ leftWall.position.z=0.477
 roomOne.add(leftWall) 
 
 const rightWall=new THREE.Mesh(geometry,material)
+rightWall.geometry.setAttribute('uv2', new THREE.BufferAttribute(rightWall.geometry.attributes.uv.array, 2))
+
 rightWall.rotation.y=1.57
 rightWall.position.x=0.5064
 rightWall.position.z=0.477
@@ -139,6 +185,17 @@ camera.position.y = .2
 camera.position.z = 1.3
 scene.add(camera)
 
+/**
+ * Lights
+ */
+ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+ scene.add(ambientLight)
+ 
+ const light = new THREE.PointLight(0xffffff, 0.5)
+ light.position.x = 2
+ light.position.y = 3
+ light.position.z = 4
+ scene.add(light)
 // Controls
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
